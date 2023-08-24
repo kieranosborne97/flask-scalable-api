@@ -1,0 +1,28 @@
+name: eb-deploy-staging
+
+on:
+  [workflow_dispatch]
+
+jobs:
+  deploy:
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Generate deployment package
+        run: zip -r application.zip application.py requirements.txt
+
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v20
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+          application_name: "staging-highly-scalable-flask-api"
+          environment_name: "staging-highly-scalable-flask-api-env"
+
+          version_label: ${{github.SHA}}
+          region: "ap-southeast-2"
+          deployment_package: deploy.zip
