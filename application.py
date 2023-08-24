@@ -9,8 +9,7 @@ def home():
     return 'Welcome to our flask api, enjoy your stay!'
 
 
-# TODO(swap to hyphen)
-@application.route('/health_check')
+@application.route('/health-check')
 def health_check():
     environment: str = os.environ.get('ENVIRONMENT') if os.environ.get('ENVIRONMENT') else 'localhost'
     return f'Health Check, the environment is {environment}'

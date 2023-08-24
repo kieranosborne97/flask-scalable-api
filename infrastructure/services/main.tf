@@ -102,7 +102,7 @@ resource "aws_elastic_beanstalk_environment" "beanstalkappenv" {
     value     = aws_acm_certificate.domain_ssl_certificate.arn
   }
   setting {
-    name      = "ENIVRONMENT"
+    name      = "ENVIRONMENT"
     namespace = "aws:elasticbeanstalk:application:environment"
     value     = terraform.workspace
   }

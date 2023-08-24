@@ -14,7 +14,7 @@ variable "elastic_beanstalk_zone_id" {
 }
 
 variable "health_check_url" {
-  default = "/health_check"
+  default = "/health-check"
 }
 
 variable "solution_stack_name" {
