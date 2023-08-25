@@ -6,7 +6,13 @@ https://www.youtube.com/playlist?list=PLHRoK_lnVbmLE3ErIu5UhmRkSHHKGvOVL
 
 ## Description
 
-An in-depth paragraph about your project and overview of use.
+This project will evolve into a scalable flask api built with SaaS in-mind.
+- Write the application in Python and Flask
+- Set up users with Auth0
+- Use Terraform to manage infrastructure as code
+- Set up infrastructure on AWS like RDS, SES, S3, Elastic Beanstalk
+- Take payments and manage subscriptions via Stripe 
+- CI/CD with GitHub Actions
 
 ## Getting Started
 
