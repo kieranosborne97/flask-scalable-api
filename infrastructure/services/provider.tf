@@ -4,6 +4,7 @@ provider "aws" {
 
 terraform {
   backend "s3" {
+    # Ensure these variables are the same as in [../terraform-backend/vars.tf -> bucket + table]
     bucket         = "highly-scalable-api-terraform-backend-bucket-2"
     key            = "workspaces-example/terraform.tfstate"
     region         = "ap-southeast-2"

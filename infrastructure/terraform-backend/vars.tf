@@ -1,3 +1,4 @@
+# These variables need to be also placed into [../services/provider.tf -> bucket + dynamodb_table]
 variable "terraform_backend_bucket" {
   default = "highly-scalable-api-terraform-backend-bucket-2"
   description = "Must be globally unique for all S3 buckets"

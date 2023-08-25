@@ -8,17 +8,43 @@ variable "public_subnets" {
 
 variable "elastic_beanstalk_zone_id" {
   default = "Z2PCDNR3VC2G1N"
-#  default = "Z1GM3OXH4ZPM65"
-  description = "https://docs.aws.amazon.com/general/latest/gr/elb.html"
-#  description = "https://docs.aws.amazon.com/general/latest/gr/elasticbeanstalk.html"
+  description = "Find the correct one from your region -> https://docs.aws.amazon.com/general/latest/gr/elasticbeanstalk.html"
 }
 
 variable "health_check_url" {
   default = "/health-check"
 }
 
+variable "instance_type" {
+  type = map(string)
+
+  default = {
+    staging = "t2.medium"
+    production = "t2.medium"
+  }
+}
+
+variable "instance_min_count" {
+  type = map(string)
+
+  default = {
+    staging = 1
+    production = 1
+  }
+}
+
+variable "instance_max_count" {
+  type = map(string)
+
+  default = {
+    staging = 2
+    production = 2
+  }
+}
+
 variable "solution_stack_name" {
   default = "64bit Amazon Linux 2023 v4.0.3 running Python 3.11"
+  description = "https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platform-history-python.html"
 }
 
 variable "application_name" {
@@ -41,7 +67,7 @@ variable "environment_name" {
 
 variable "hosted_zone_domain_name" {
   default = "demo.kieranosborne.com.au"
-  description = "This must exist in router 53 already and have NS pointing to it"
+  description = "This hosted zone must exist in route 53 already and have name servers pointing to it"
 }
 
 variable "domain_name" {
@@ -51,4 +77,5 @@ variable "domain_name" {
     staging = "staging.demo.kieranosborne.com.au"
     production = "production.demo.kieranosborne.com.au"
   }
+  description = "These will be the domain names to access the api at."
 }

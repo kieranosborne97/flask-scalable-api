@@ -2,6 +2,7 @@ resource "aws_s3_bucket" "terraform_state" {
   bucket = var.terraform_backend_bucket
 
   # Prevent accidental deletion of this S3 bucket
+  # Change to true and run apply to be able to destroy it
   lifecycle {
     prevent_destroy = false
   }
@@ -14,7 +15,7 @@ resource "aws_s3_bucket_versioning" "enabled" {
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
+resource "aws_s3_bucket_server_side_encryption_configuration" "encryption" {
   bucket = aws_s3_bucket.terraform_state.id
 
   rule {

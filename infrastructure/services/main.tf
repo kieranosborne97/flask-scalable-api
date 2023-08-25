@@ -1,9 +1,10 @@
-
-data "aws_route53_zone" "public" {
+# Look up hosted zone to create records in
+data "aws_route53_zone" "domain_hosted_zone" {
   name         = var.hosted_zone_domain_name
   private_zone = false
 }
 
+# Create certificate in ACM for the domain name
 resource "aws_acm_certificate" "domain_ssl_certificate" {
   domain_name       = var.domain_name[terraform.workspace]
   validation_method = "DNS"
@@ -13,14 +14,14 @@ resource "aws_acm_certificate" "domain_ssl_certificate" {
 }
 
 # Create elastic beanstalk application
-resource "aws_elastic_beanstalk_application" "elasticapp" {
+resource "aws_elastic_beanstalk_application" "elastic_beanstalk_app" {
   name = var.application_name[terraform.workspace]
 }
 
 # Create elastic beanstalk Environment
-resource "aws_elastic_beanstalk_environment" "beanstalkappenv" {
+resource "aws_elastic_beanstalk_environment" "elastic_beanstalk_env" {
   name                = var.environment_name[terraform.workspace]
-  application         = aws_elastic_beanstalk_application.elasticapp.name
+  application         = aws_elastic_beanstalk_application.elastic_beanstalk_app.name
   solution_stack_name = var.solution_stack_name
   tier                = "WebServer"
 
@@ -59,7 +60,7 @@ resource "aws_elastic_beanstalk_environment" "beanstalkappenv" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "InstanceType"
-    value     = "t2.medium"
+    value     = var.instance_type[terraform.workspace]
   }
   setting {
     namespace = "aws:elasticbeanstalk:environment:process:default"
@@ -74,12 +75,12 @@ resource "aws_elastic_beanstalk_environment" "beanstalkappenv" {
   setting {
     namespace = "aws:autoscaling:asg"
     name      = "MinSize"
-    value     = 1
+    value     = var.instance_min_count[terraform.workspace]
   }
   setting {
     namespace = "aws:autoscaling:asg"
     name      = "MaxSize"
-    value     = 2
+    value     = var.instance_max_count[terraform.workspace]
   }
   setting {
     namespace = "aws:elasticbeanstalk:healthreporting:system"
@@ -108,37 +109,41 @@ resource "aws_elastic_beanstalk_environment" "beanstalkappenv" {
   }
 }
 
+# Create CNAME record for SSL validation
 resource "aws_route53_record" "domain_ssl_certificate_validation_records" {
   allow_overwrite = true
   name            = tolist(aws_acm_certificate.domain_ssl_certificate.domain_validation_options)[0].resource_record_name
   records         = [tolist(aws_acm_certificate.domain_ssl_certificate.domain_validation_options)[0].resource_record_value]
   type            = tolist(aws_acm_certificate.domain_ssl_certificate.domain_validation_options)[0].resource_record_type
-  zone_id         = data.aws_route53_zone.public.id
+  zone_id         = data.aws_route53_zone.domain_hosted_zone.id
   ttl             = 60
 }
 
-
+# Validate the SSL certificate
 resource "aws_acm_certificate_validation" "domain_ssl_certificate_validation" {
   certificate_arn         = aws_acm_certificate.domain_ssl_certificate.arn
   validation_record_fqdns = [aws_route53_record.domain_ssl_certificate_validation_records.fqdn]
 }
 
+# Create an A record with our domain and point it to our EB
 resource "aws_route53_record" "domain_name_alias" {
-  zone_id = data.aws_route53_zone.public.id
+  zone_id = data.aws_route53_zone.domain_hosted_zone.id
   name    = var.domain_name[terraform.workspace]
   type    = "A"
   alias {
-    name                   = aws_elastic_beanstalk_environment.beanstalkappenv.cname
+    name                   = aws_elastic_beanstalk_environment.elastic_beanstalk_env.cname
     zone_id                = var.elastic_beanstalk_zone_id
     evaluate_target_health = false
   }
 }
 
+# Look up our load balancer
 data "aws_lb_listener" "http_listener" {
-  load_balancer_arn = aws_elastic_beanstalk_environment.beanstalkappenv.load_balancers[0]
+  load_balancer_arn = aws_elastic_beanstalk_environment.elastic_beanstalk_env.load_balancers[0]
   port              = 80
 }
 
+# Redirect all http -> https on our load balancer
 resource "aws_lb_listener_rule" "redirect_http_to_https" {
   listener_arn = data.aws_lb_listener.http_listener.arn
   priority     = 1
