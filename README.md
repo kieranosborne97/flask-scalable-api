@@ -24,6 +24,8 @@ Ensure you have the following setup before starting:
 
 ### Infrastructure
 
+Modify variables in both vars.tf files within the infrastructure folder.
+
 * Plan and apply the terraform-backend
   * This will create the bucket + dynamo table to store the terraform states
 * Plan and apply the services 

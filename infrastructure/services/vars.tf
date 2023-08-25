@@ -1,9 +1,11 @@
 variable "vpc_id" {
   default = "vpc-71846417"
+  description = "This can be found within the VPC dashboard"
 }
 
 variable "public_subnets" {
   default = ["subnet-f12cd6b9", "subnet-b66f14ee", "subnet-f3ab6395"]
+  description = "These can be found within the VPC dashboard under subnets"
 }
 
 variable "elastic_beanstalk_zone_id" {
@@ -77,5 +79,5 @@ variable "domain_name" {
     staging = "staging.demo.kieranosborne.com.au"
     production = "production.demo.kieranosborne.com.au"
   }
-  description = "These will be the domain names to access the api at."
+  description = "These will be the domain names to access the api at"
 }
